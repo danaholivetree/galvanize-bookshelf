@@ -6,10 +6,11 @@ const bodyParser = require('body-parser')
 const router = express.Router();
 const knex = require('../knex')
 const hump = require('hump')
+const boom = require('boom')
 
 router.get('/books', (req, res, next) => {
   knex('books')
-    .select()
+    .select('author', 'title', 'id', 'genre', 'description', 'cover_url as coverUrl', 'updated_at as updatedAt', 'created_at as createdAt')
     .orderBy('title', 'asc')
     .then( (items) => {
       res.send(items)
@@ -20,7 +21,7 @@ router.get('/books', (req, res, next) => {
 router.get('/books/:id', (req, res, next) => {
   const id = req.params.id
   knex('books')
-    .select()
+    .select('author', 'title', 'id', 'genre', 'description', 'cover_url as coverUrl', 'updated_at as updatedAt', 'created_at as createdAt')
     .where('id', id)
     .then( (stuff) => {
       if (!stuff) {
@@ -32,9 +33,9 @@ router.get('/books/:id', (req, res, next) => {
 })
 
 router.post('/books', (req, res, next) => {
-  const { title, author, genre, description, cover_url } = req.body
-  if (!title || !author || !genre || !description || !cover_url) {
-    next()
+  const { title, author, genre, description, coverUrl } = req.body
+  if (!title || !author || !genre || !description || !coverUrl) {
+    throw boom.create(404, 'Not Found')
   }
   knex('books')
     .insert({
@@ -42,7 +43,7 @@ router.post('/books', (req, res, next) => {
       author,
       genre,
       description,
-      cover_url
+      cover_url: coverUrl
       })
     .returning('*')
     .then( (stuff) => {
@@ -52,7 +53,7 @@ router.post('/books', (req, res, next) => {
         author: stuff[0].author,
         genre: stuff[0].genre,
         description: stuff[0].description,
-        cover_url: stuff[0].cover_url
+        coverUrl: stuff[0].cover_url
       }
       res.send(book)
     })
@@ -61,7 +62,8 @@ router.post('/books', (req, res, next) => {
 
 router.patch('/books/:id', (req, res, next) => {
   const id = req.params.id
-  const { title, author, genre, description, cover_url } = req.body
+  const { title, author, genre, description, coverUrl } = req.body
+
   let newBook = {}
   if (title) {
     newBook.title = title
@@ -75,8 +77,8 @@ router.patch('/books/:id', (req, res, next) => {
   if (description) {
     newBook.description = description
   }
-  if (cover_url) {
-    newBook.cover_url = cover_url
+  if (coverUrl) {
+    newBook.cover_url = coverUrl
   }
   return knex('books')
     .select()
@@ -96,7 +98,7 @@ router.patch('/books/:id', (req, res, next) => {
             author: stuff[0].author,
             genre: stuff[0].genre,
             description: stuff[0].description,
-            cover_url: stuff[0].cover_url
+            coverUrl: stuff[0].cover_url
           }
           res.send(book)
         })
@@ -119,7 +121,7 @@ router.delete('/books/:id', (req, res, next) => {
         author: stuff[0].author,
         genre: stuff[0].genre,
         description: stuff[0].description,
-        cover_url: stuff[0].cover_url
+        coverUrl: stuff[0].cover_url
       }
       res.send(deadBook)
     })
