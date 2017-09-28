@@ -1,10 +1,10 @@
 'use strict';
 
-const express = require('express');
+const express = require('express')
 
 // eslint-disable-next-line new-cap
-const router = express.Router();
+const router = express.Router()
+const knex = require('../knex')
 
-// YOUR CODE HERE
 
 module.exports = router;

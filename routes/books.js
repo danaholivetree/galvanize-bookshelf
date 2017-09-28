@@ -5,7 +5,6 @@ const bodyParser = require('body-parser')
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const knex = require('../knex')
-const hump = require('hump')
 const boom = require('boom')
 
 router.get('/books', (req, res, next) => {
@@ -38,13 +37,8 @@ router.post('/books', (req, res, next) => {
     throw boom.create(404, 'Not Found')
   }
   knex('books')
-    .insert({
-      title,
-      author,
-      genre,
-      description,
-      cover_url: coverUrl
-      })
+    .insert(
+    )
     .returning('*')
     .then( (stuff) => {
       let book = {
