@@ -7,6 +7,7 @@ const router = express.Router();
 const knex = require('../knex')
 const SECRET = process.env.JWT_KEY
 const jwt = require('jsonwebtoken')
+const {camelizeKeys, decamelizeKeys} = require('humps')
 var currentUser
 
 router.get('/favorites', (req, res, next) => {
@@ -21,21 +22,11 @@ router.get('/favorites', (req, res, next) => {
     else {
       currentUser = payload.id
       knex('favorites')
-        .where(user_id = currentUser)
-        .innerJoin('books', books.id, favorites.book_id)
+        .where('user_id', currentUser)
+        .innerJoin('books', 'books.id', 'favorites.book_id')
         .returning('*')
-        // .on(books.id = favorites.book_id)
-        .first()
         .then( (faves) => {
-          res.send({
-            id: faves.id,
-            bookId: faves.book_id,
-            title: faves.title,
-            author: faves.author,
-            genre: faves.genre,
-            description: faves.description,
-            coverUrl: faves.cover_url
-          })
+          res.send(camelizeKeys(faves))
         })
     }
   })
@@ -58,7 +49,6 @@ router.post('/favorites', (req, res, next) => {
       book_id: req.body.bookId,
       user_id: currentUser
     }, '*')
-
     .then( (newFave) => {
       let obj = {
         id : newFave[0].id,
