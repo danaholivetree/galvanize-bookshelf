@@ -33,12 +33,12 @@ router.get('/favorites', (req, res, next) => {
 })
 
 router.get('/favorites/check?bookId=:id', (req, res, next) => {
+  console.log('how do i get here?')
   console.log(req.query.bookId)
   if (currentUser === req.query.bookId) {
     res.send(true)
   }
   else res.send(false)
-
 })
 
 router.post('/favorites', (req, res, next) => {
@@ -57,7 +57,18 @@ router.post('/favorites', (req, res, next) => {
       }
       res.send(obj)
     })
+})
 
+router.delete('/favorites', (req, res, next) => {
+  knex('favorites')
+    .select('book_id', 'user_id')
+    .where('book_id', req.body.bookId)
+    .then( (deleted) => {
+      knex('favorites')
+      .del()
+      .where('book_id', req.body.bookId)
+      res.send(camelizeKeys(deleted))
+    })
 })
 
 
