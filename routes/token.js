@@ -19,7 +19,6 @@ router.get('/token', (req, res, next) => {
       res.send(false)
     }
     else {
-    // user = payload
     res.send(true)
     }
   })
@@ -46,7 +45,7 @@ router.post('/token', (req, res, next) => {
       next(boom.create(400, 'Bad email or password'))
     }
     if (bcrypt.compareSync(req.body.password, data.hashed_password)) {
-      let token = jwt.sign(data.id, SECRET)
+      let token = jwt.sign({id : data.id}, SECRET)
       let info = {
         id: data.id,
         email: data.email,
