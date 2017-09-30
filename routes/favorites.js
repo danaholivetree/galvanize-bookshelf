@@ -33,7 +33,7 @@ router.get('/favorites', (req, res, next) => {
   })
 })
 
-router.get('/favorites/check?bookId=:id', (req, res, next) => {
+router.get('/favorites/check', (req, res, next) => {
   if(!req.cookies.token) {
     next(boom.create(401, 'Unauthorized'))
   }
