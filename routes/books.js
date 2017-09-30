@@ -37,8 +37,13 @@ router.post('/books', (req, res, next) => {
     throw boom.create(404, 'Not Found')
   }
   knex('books')
-    .insert(
-    )
+    .insert({
+        title,
+        author,
+        genre,
+        description,
+        cover_url: coverUrl
+        })
     .returning('*')
     .then( (stuff) => {
       let book = {
@@ -117,7 +122,12 @@ router.delete('/books/:id', (req, res, next) => {
         description: stuff[0].description,
         coverUrl: stuff[0].cover_url
       }
-      res.send(deadBook)
+      knex('books')
+        .del()
+        .where('id', id)
+        .then( () => {
+          res.send(deadBook)
+        })
     })
     .catch((err) => next(err))
 })
