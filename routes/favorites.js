@@ -8,13 +8,14 @@ const knex = require('../knex')
 const SECRET = process.env.JWT_KEY
 const jwt = require('jsonwebtoken')
 const {camelizeKeys, decamelizeKeys} = require('humps')
+const boom = require('boom')
 var currentUser
 
 router.get('/favorites', (req, res, next) => {
 
-  // if(!req.cookies.token) {
-  //   next(err)
-  // }
+  if(!req.cookies.token) {
+    next(boom.create(401, 'Unauthorized'))
+  }
   jwt.verify(req.cookies.token, SECRET, (err, payload) => {
     if (err) {
       res.send(false)
@@ -33,8 +34,9 @@ router.get('/favorites', (req, res, next) => {
 })
 
 router.get('/favorites/check?bookId=:id', (req, res, next) => {
-  console.log('how do i get here?')
-  console.log(req.query.bookId)
+  if(!req.cookies.token) {
+    next(boom.create(401, 'Unauthorized'))
+  }
   if (currentUser === req.query.bookId) {
     res.send(true)
   }
@@ -42,8 +44,9 @@ router.get('/favorites/check?bookId=:id', (req, res, next) => {
 })
 
 router.post('/favorites', (req, res, next) => {
-  //req.body is just bookId
-  console.log(currentUser)
+  if(!req.cookies.token) {
+    next(boom.create(401, 'Unauthorized'))
+  }
   knex('favorites')
     .insert({
       book_id: req.body.bookId,
@@ -60,6 +63,9 @@ router.post('/favorites', (req, res, next) => {
 })
 
 router.delete('/favorites', (req, res, next) => {
+  if(!req.cookies.token) {
+    next(boom.create(401, 'Unauthorized'))
+  }
   knex('favorites')
     .select('book_id', 'user_id')
     .where('book_id', req.body.bookId)
